@@ -1,0 +1,24 @@
+.bg {
+  background-color: #B6BBC4;
+}
+
+.stage {
+  min-height: 600px;
+  min-width: 600px;
+  margin-bottom: 1rem;
+}
+
+.controlsContainer {
+    padding-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+}
+
+.controlsOptionsContainer {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+    gap: 1rem;
+}
