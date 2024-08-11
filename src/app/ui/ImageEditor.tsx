@@ -20,8 +20,8 @@ export default function ImageEditor() {
     width: 0,
     url: "",
   });
-  const { brightness, contrast, height, width, url } = imageProperties;
 
+  const { brightness, contrast, height, width, url } = imageProperties;
   const [image] = useImage(url != null ? url : "");
   const stageRef = useRef<StageType>(null);
   const imageRef = useRef<Image>(null);
@@ -43,6 +43,21 @@ export default function ImageEditor() {
         url: URL.createObjectURL(e.target.files[0]),
       });
     }
+  }
+
+  function handleControlChange(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    let entries: { [key: string]: number } = {};
+    for (const [k, v] of data.entries()) {
+      entries[k] = parseFloat(v as string);
+    }
+    const modifiedImageProperties = entries as Partial<ImageProperties>;
+
+    setImageProperties({
+      ...imageProperties,
+      ...modifiedImageProperties,
+    });
   }
 
   return (
@@ -85,7 +100,7 @@ export default function ImageEditor() {
       {image == null ? (
         <UploadButton onUpload={handleUpload} />
       ) : (
-        <ImageEditorControls />
+        <ImageEditorControls onControlChange={handleControlChange} />
       )}
     </>
   );
