@@ -111,6 +111,12 @@ export default function Shape(props: {
           //   return newBox;
           // }}
           keepRatio
+          enabledAnchors={[
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right",
+          ]}
         />
       )}
     </>
