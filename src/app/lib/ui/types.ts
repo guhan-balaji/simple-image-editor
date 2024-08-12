@@ -15,8 +15,8 @@ export type TextProperties = BaseShapeProperties & {
 
 export type ImageProperties = BaseShapeProperties & {
   id: ShapeID;
-  height: number;
-  width: number;
+  // height: number;
+  // width: number;
   brightness: number;
   contrast: number;
   url: string;

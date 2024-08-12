@@ -103,13 +103,14 @@ export default function Shape(props: {
         <Transformer
           ref={trRef}
           flipEnabled={false}
-          boundBoxFunc={(oldBox, newBox) => {
-            // limit resize
-            if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
-              return oldBox;
-            }
-            return newBox;
-          }}
+          // boundBoxFunc={(oldBox, newBox) => {
+          //   // limit resize
+          //   if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
+          //     return oldBox;
+          //   }
+          //   return newBox;
+          // }}
+          keepRatio
         />
       )}
     </>

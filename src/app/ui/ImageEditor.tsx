@@ -44,8 +44,8 @@ export default function ImageEditor() {
         id: crypto.randomUUID(),
         brightness: 0,
         contrast: 0,
-        height: 600,
-        width: 600,
+        // height: 600,
+        // width: 600,
         url: URL.createObjectURL(e.target.files[0]),
       });
     }
@@ -123,6 +123,7 @@ export default function ImageEditor() {
               isSelected={selectedShape === imageProperties.id}
               onSelect={() => setSelectedShape(imageProperties.id)}
               onChange={(newAttrs) => {
+                console.log(newAttrs);
                 setImageProperties(newAttrs as ImageProperties);
               }}
             />
@@ -137,9 +138,9 @@ export default function ImageEditor() {
               onChange={(newAttrs) => {
                 console.log(newAttrs);
 
-                const txts = texts.slice();
-                txts[i] = newAttrs as TextProperties;
-                setTexts(txts);
+                // const txts = texts.slice();
+                // txts[i] = newAttrs as TextProperties;
+                // setTexts(txts);
               }}
             />
           ))}
