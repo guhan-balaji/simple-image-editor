@@ -1,15 +1,17 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { ImageProperties } from "@/app/lib/ui/types";
 import { Stage, Layer, Text, Image as KonvaImage } from "react-konva";
 import Konva from "konva";
 import useImage from "use-image";
+import { ImageControls, TextControls } from "./ImageEditorControls";
 
-import UploadButton from "./UploadButton";
-
-import styles from "./imageEditor.module.css";
+// Type imports
 import { Image } from "konva/lib/shapes/Image";
 import { Stage as StageType } from "konva/lib/Stage";
+import { ImageProperties, TextID, TextProperties } from "@/app/lib/ui/types";
+
+// Styles
+import styles from "./imageEditor.module.css";
 
 export default function ImageEditor() {
   const [imageProperties, setImageProperties] = useState<ImageProperties>({
@@ -19,6 +21,15 @@ export default function ImageEditor() {
     width: 0,
     url: "",
   });
+  const [texts, setTexts] = useState<TextProperties[]>([]);
+  const [text, setText] = useState<TextProperties>({
+    id: "",
+    text: "",
+    x: 0,
+    y: 0,
+    fill: "",
+  });
+  const [selectedText, setSelectedText] = useState<TextID>("");
 
   const { brightness, contrast, height, width, url } = imageProperties;
   const [image] = useImage(url != null ? url : "");
@@ -44,10 +55,11 @@ export default function ImageEditor() {
     }
   }
 
-  function handleControlChange(e: React.FormEvent<HTMLFormElement>) {
+  function handleImageControlChange(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    let entries: { [key: string]: number } = {};
+
+    const entries: { [key: string]: number } = {};
     for (const [k, v] of data.entries()) {
       entries[k] = parseFloat(v as string);
     }
@@ -57,6 +69,37 @@ export default function ImageEditor() {
       ...imageProperties,
       ...modifiedImageProperties,
     });
+  }
+
+  function handleTextControlChange(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+
+    const entries: { [key: string]: string } = {};
+    for (const [k, v] of data.entries()) {
+      entries[k] = v as string;
+    }
+
+    if (entries.id === "") {
+      addText(entries.text);
+    } else {
+      modifyText();
+    }
+  }
+
+  function addText(text: string) {
+    const newText = {
+      id: crypto.randomUUID(),
+      x: 0,
+      y: 0,
+      fill: "",
+      text,
+    } as TextProperties;
+    setTexts([...texts, newText]);
+  }
+
+  function modifyText() {
+    // TODO
   }
 
   return (
@@ -80,63 +123,47 @@ export default function ImageEditor() {
                 ref={imageRef}
               />
             )}
-            {/* {texts.map((text) => (
+            {texts.map((text) => (
               <Text
                 key={text.id}
                 text={text.text}
                 x={text.x}
                 y={text.y}
-                fontFamily={text.font}
                 fill={text.fill}
-                fontSize={24}
-                draggable
-                onDragEnd={(e) => handleTextDrag(e, text.id)}
               />
-            ))} */}
+            ))}
           </Layer>
         )}
       </Stage>
       {image == null ? (
         <UploadButton onUpload={handleUpload} />
       ) : (
-        <ImageEditorControls onControlChange={handleControlChange} />
+        <>
+          <ImageControls onControlChange={handleImageControlChange} />
+          <TextControls
+            onControlChange={handleTextControlChange}
+            textProperties={text}
+          />
+        </>
       )}
     </>
   );
 }
 
-function ImageEditorControls({
-  onControlChange,
+function UploadButton({
+  onUpload,
 }: {
-  onControlChange: React.FormEventHandler;
+  onUpload: React.ChangeEventHandler<HTMLInputElement>;
 }) {
-  const btnRef = useRef<HTMLButtonElement>(null);
-
   return (
-    <form className={styles.controlsContainer} onSubmit={onControlChange}>
-      <div className={styles.controlsOptionsContainer}>
-        <label htmlFor="brightness">Brightness:</label>
-        <input
-          onChange={(_) => btnRef.current?.click()}
-          name="brightness"
-          type="range"
-          min="-1"
-          max="1"
-          step="0.01"
-        />
-      </div>
-      <div className={styles.controlsOptionsContainer}>
-        <label htmlFor="contrast">Contrast:</label>
-        <input
-          name="contrast"
-          type="range"
-          min="-50"
-          max="50"
-          step="1"
-          onChange={(_) => btnRef.current?.click()}
-        />
-      </div>
-      <button type="submit" ref={btnRef} hidden aria-hidden="true"></button>
-    </form>
+    <button className={styles.btn}>
+      <input
+        type="file"
+        accept="image/*"
+        name="image"
+        id="image"
+        onChange={onUpload}
+      />
+    </button>
   );
 }
