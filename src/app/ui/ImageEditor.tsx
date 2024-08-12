@@ -16,6 +16,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 
 export default function ImageEditor() {
   const [imageProperties, setImageProperties] = useState<ImageProperties>({
+    shape: "image",
     id: "",
     brightness: 0,
     contrast: 0,
@@ -23,8 +24,10 @@ export default function ImageEditor() {
     width: 0,
     url: "",
   });
+  const [images, setImages] = useState<ImageProperties[]>([]);
   const [texts, setTexts] = useState<TextProperties[]>([]);
   const [text, setText] = useState<TextProperties>({
+    shape: "text",
     id: "",
     text: "",
     fill: "",
@@ -41,11 +44,10 @@ export default function ImageEditor() {
   function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files[0]) {
       setImageProperties({
+        shape: "image",
         id: crypto.randomUUID(),
         brightness: 0,
         contrast: 0,
-        // height: 600,
-        // width: 600,
         url: URL.createObjectURL(e.target.files[0]),
       });
     }
@@ -91,12 +93,13 @@ export default function ImageEditor() {
   }
 
   function addText(text: string) {
-    const newText = {
+    const newText: TextProperties = {
+      shape: "text",
       id: crypto.randomUUID(),
       fill: "#000000",
       fontSize: 18,
       text,
-    } as TextProperties;
+    };
     setTexts([...texts, newText]);
   }
 
@@ -117,8 +120,7 @@ export default function ImageEditor() {
         <Layer>
           {image && (
             <Shape
-              image={image}
-              shape="image"
+              // image={image}
               shapeProps={imageProperties}
               isSelected={selectedShape === imageProperties.id}
               onSelect={() => setSelectedShape(imageProperties.id)}
@@ -128,22 +130,24 @@ export default function ImageEditor() {
               }}
             />
           )}
-          {texts.map((textProps, i) => (
-            <Shape
-              key={textProps.id}
-              shape="text"
-              shapeProps={textProps}
-              isSelected={selectedShape === textProps.id}
-              onSelect={() => setSelectedShape(textProps.id)}
-              onChange={(newAttrs) => {
-                console.log(newAttrs);
+          {texts.map(
+            (textProps, i) =>
+               (
+                <Shape
+                  key={textProps.id}
+                  shapeProps={textProps}
+                  isSelected={selectedShape === textProps.id}
+                  onSelect={() => setSelectedShape(textProps.id)}
+                  onChange={(newAttrs) => {
+                    console.log(newAttrs);
 
-                // const txts = texts.slice();
-                // txts[i] = newAttrs as TextProperties;
-                // setTexts(txts);
-              }}
-            />
-          ))}
+                    // const txts = texts.slice();
+                    // txts[i] = newAttrs as TextProperties;
+                    // setTexts(txts);
+                  }}
+                />
+              )
+          )}
         </Layer>
       </Stage>
       <>

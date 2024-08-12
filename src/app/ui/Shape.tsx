@@ -11,105 +11,103 @@ import { Text } from "konva/lib/shapes/Text";
 import { Image } from "konva/lib/shapes/Image";
 import { KonvaEventObject } from "konva/lib/Node";
 import Konva from "konva";
+import useImage from "use-image";
 
-export default function Shape(props: {
-  shape: "image" | "text";
+export default function Shape({
+  shapeProps,
+  isSelected,
+  onSelect,
+  onChange,
+}: {
   shapeProps: ShapeProperties;
   isSelected: boolean;
   onSelect: () => void;
   onChange: (newAttrs: ShapeProperties) => void;
-  image?: CanvasImageSource;
-  imageRef?: LegacyRef<Image>;
+  // image?: CanvasImageSource;
+  // imageRef?: LegacyRef<Image>;
 }) {
   const shapeRef = useRef<Image | Text>(null);
   const trRef = useRef<T>(null);
+  const [image] = useImage(shapeProps.shape === "image" ? shapeProps.url : "");
 
   useEffect(() => {
-    if (props.isSelected && shapeRef.current != null) {
+    if (isSelected && shapeRef.current != null) {
       // we need to attach transformer manually
       trRef.current?.nodes([shapeRef.current]);
       trRef.current?.getLayer()?.batchDraw();
     }
-  }, [props.isSelected]);
+  }, [isSelected]);
 
   useEffect(() => {
-    if (props.image != null) {
-      const imageProps = props.shapeProps as ImageProperties;
+    if (image != null && shapeProps.shape === "image") {
+      const imageProps = shapeProps;
       console.log("shape effect: ", imageProps);
 
       // you many need to reapply cache on some props changes like shadow, stroke, etc.
       shapeRef.current?.cache();
     }
-  }, [props.image, props.shapeProps]);
+  }, [image, shapeProps]);
 
   function onDragEnd(e: KonvaEventObject<DragEvent>) {
-    props.onChange({
-      ...props.shapeProps,
+    onChange({
+      ...shapeProps,
       x: e.target.x(),
       y: e.target.y(),
     });
   }
 
   function onTransformEnd(e: KonvaEventObject<Event>) {
-    // transformer is changing scale of the node
-    // and NOT its width or height
-    // but in the store we have only width and height
-    // to match the data better we will reset scale on transform end
+    // // transformer is changing scale of the node
+    // // and NOT its width or height
+    // // but in the store we have only width and height
+    // // to match the data better we will reset scale on transform end
     const node = shapeRef.current!;
-    const scaleX = node.scaleX();
-    const scaleY = node.scaleY();
+    // const scaleX = node.scaleX();
+    // const scaleY = node.scaleY();
 
-    // we will reset it back
-    node.scaleX(1);
-    node.scaleY(1);
-    props.onChange({
-      ...props.shapeProps,
+    // // we will reset it back
+    // node.scaleX(1);
+    // node.scaleY(1);
+    onChange({
+      ...shapeProps,
       x: node.x(),
       y: node.y(),
-      // set minimal value
-      width: Math.max(5, node.width() * scaleX),
-      height: Math.max(node.height() * scaleY),
+      width: node.width(),
+      height: node.height(),
     });
   }
 
   return (
     <>
-      {props.shape === "image" && props.image != null ? (
+      {shapeProps.shape === "image" && image != null ? (
         <KonvaImage
-          key={props.shapeProps.id}
-          image={props.image}
+          key={shapeProps.id}
+          image={image}
           filters={[Konva.Filters.Brighten, Konva.Filters.Contrast]}
-          onClick={props.onSelect}
-          onTap={props.onSelect}
+          onClick={onSelect}
+          onTap={onSelect}
           ref={shapeRef as LegacyRef<Image>}
-          {...props.shapeProps}
+          {...shapeProps}
           draggable
           onDragEnd={onDragEnd}
           onTransformEnd={onTransformEnd}
         />
       ) : (
         <KonvaText
-          key={props.shapeProps.id}
-          onClick={props.onSelect}
-          onTap={props.onSelect}
-          {...props.shapeProps}
+          key={shapeProps.id}
+          onClick={onSelect}
+          onTap={onSelect}
+          {...shapeProps}
           draggable
           onDragEnd={onDragEnd}
-          onTransform={onTransformEnd}
+          onTransformEnd={onTransformEnd}
           ref={shapeRef as LegacyRef<Text>}
         />
       )}
-      {props.isSelected && (
+      {isSelected && (
         <Transformer
           ref={trRef}
           flipEnabled={false}
-          // boundBoxFunc={(oldBox, newBox) => {
-          //   // limit resize
-          //   if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
-          //     return oldBox;
-          //   }
-          //   return newBox;
-          // }}
           keepRatio
           enabledAnchors={[
             "top-left",
