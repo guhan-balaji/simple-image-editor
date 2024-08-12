@@ -8,7 +8,6 @@ const ImageEditor = dynamic(() => import("@/app/ui/ImageEditor"), {
 export default function Home() {
   return (
     <main className={`${styles.main} ${styles.color}`}>
-      <h1>Simple Image Editor</h1>
       <ImageEditor />
     </main>
   );

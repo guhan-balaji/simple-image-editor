@@ -1,20 +1,22 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { Stage, Layer, Text, Image as KonvaImage } from "react-konva";
-import Konva from "konva";
+import { useRef, useState } from "react";
+import { Stage, Layer } from "react-konva";
 import useImage from "use-image";
+import Shape from "./Shape";
 import { ImageControls, TextControls } from "./ImageEditorControls";
 
 // Type imports
 import { Image } from "konva/lib/shapes/Image";
 import { Stage as StageType } from "konva/lib/Stage";
-import { ImageProperties, TextID, TextProperties } from "@/app/lib/ui/types";
+import { ImageProperties, ShapeID, TextProperties } from "@/app/lib/ui/types";
 
 // Styles
 import styles from "./imageEditor.module.css";
+import { KonvaEventObject } from "konva/lib/Node";
 
 export default function ImageEditor() {
   const [imageProperties, setImageProperties] = useState<ImageProperties>({
+    id: "",
     brightness: 0,
     contrast: 0,
     height: 0,
@@ -25,33 +27,34 @@ export default function ImageEditor() {
   const [text, setText] = useState<TextProperties>({
     id: "",
     text: "",
-    x: 0,
-    y: 0,
     fill: "",
+    fontSize: 12,
   });
-  const [selectedText, setSelectedText] = useState<TextID>("");
+  const [selectedText, setSelectedText] = useState<ShapeID>("");
 
   const { brightness, contrast, height, width, url } = imageProperties;
   const [image] = useImage(url != null ? url : "");
-  const stageRef = useRef<StageType>(null);
-  const imageRef = useRef<Image>(null);
 
-  useEffect(() => {
-    if (image) {
-      // you many need to reapply cache on some props changes like shadow, stroke, etc.
-      imageRef.current?.cache();
-    }
-  }, [image]);
+  const [selectedShape, setSelectedShape] = useState<ShapeID>("");
+  const stageRef = useRef<StageType>(null);
 
   function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files[0]) {
       setImageProperties({
+        id: crypto.randomUUID(),
         brightness: 0,
         contrast: 0,
         height: 600,
         width: 600,
         url: URL.createObjectURL(e.target.files[0]),
       });
+    }
+  }
+  function checkDeselect(e: KonvaEventObject<Event>) {
+    // deselect when clicked on empty area
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (clickedOnEmpty) {
+      setSelectedShape("");
     }
   }
 
@@ -90,9 +93,8 @@ export default function ImageEditor() {
   function addText(text: string) {
     const newText = {
       id: crypto.randomUUID(),
-      x: 0,
-      y: 0,
-      fill: "",
+      fill: "#000000",
+      fontSize: 18,
       text,
     } as TextProperties;
     setTexts([...texts, newText]);
@@ -106,46 +108,56 @@ export default function ImageEditor() {
     <>
       <Stage
         className={`${styles.bg} ${styles.stage}`}
-        width={height}
-        height={width}
         ref={stageRef}
+        width={window.innerWidth}
+        height={window.innerHeight}
+        onMouseDown={checkDeselect}
+        onTouchStart={checkDeselect}
       >
-        {image && (
-          <Layer>
-            {image && (
-              <KonvaImage
-                image={image}
-                filters={[Konva.Filters.Brighten, Konva.Filters.Contrast]}
-                brightness={brightness}
-                contrast={contrast}
-                width={width}
-                height={height}
-                ref={imageRef}
-              />
-            )}
-            {texts.map((text) => (
-              <Text
-                key={text.id}
-                text={text.text}
-                x={text.x}
-                y={text.y}
-                fill={text.fill}
-              />
-            ))}
-          </Layer>
-        )}
+        <Layer>
+          {image && (
+            <Shape
+              image={image}
+              shape="image"
+              shapeProps={imageProperties}
+              isSelected={selectedShape === imageProperties.id}
+              onSelect={() => setSelectedShape(imageProperties.id)}
+              onChange={(newAttrs) => {
+                setImageProperties(newAttrs as ImageProperties);
+              }}
+            />
+          )}
+          {texts.map((textProps, i) => (
+            <Shape
+              key={textProps.id}
+              shape="text"
+              shapeProps={textProps}
+              isSelected={selectedShape === textProps.id}
+              onSelect={() => setSelectedShape(textProps.id)}
+              onChange={(newAttrs) => {
+                console.log(newAttrs);
+
+                const txts = texts.slice();
+                txts[i] = newAttrs as TextProperties;
+                setTexts(txts);
+              }}
+            />
+          ))}
+        </Layer>
       </Stage>
-      {image == null ? (
-        <UploadButton onUpload={handleUpload} />
-      ) : (
-        <>
-          <ImageControls onControlChange={handleImageControlChange} />
-          <TextControls
-            onControlChange={handleTextControlChange}
-            textProperties={text}
-          />
-        </>
-      )}
+      <>
+        {image == null ? (
+          <UploadButton onUpload={handleUpload} />
+        ) : (
+          <>
+            <ImageControls onControlChange={handleImageControlChange} />
+            <TextControls
+              onControlChange={handleTextControlChange}
+              textProperties={text}
+            />
+          </>
+        )}
+      </>
     </>
   );
 }

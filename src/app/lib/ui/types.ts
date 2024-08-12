@@ -1,4 +1,20 @@
-export type ImageProperties = {
+export type ShapeID = string;
+
+type BaseShapeProperties = {
+  height?: number;
+  width?: number;
+  x?: number;
+  y?: number;
+};
+export type TextProperties = BaseShapeProperties & {
+  id: ShapeID;
+  text: string;
+  fontSize: number;
+  fill: string;
+};
+
+export type ImageProperties = BaseShapeProperties & {
+  id: ShapeID;
   height: number;
   width: number;
   brightness: number;
@@ -6,12 +22,4 @@ export type ImageProperties = {
   url: string;
 };
 
-export type TextProperties = {
-  id: TextID;
-  text: string;
-  x: number;
-  y: number;
-  fill: string;
-};
-
-export type TextID = string;
+export type ShapeProperties = TextProperties | ImageProperties;
