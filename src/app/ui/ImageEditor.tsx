@@ -1,110 +1,114 @@
 "use client";
 import { useRef, useState } from "react";
 import { Stage, Layer } from "react-konva";
-import useImage from "use-image";
 import Shape from "./Shape";
-import { ImageControls, TextControls } from "./ImageEditorControls";
+import Controls from "./Controls";
 
 // Type imports
-import { Image } from "konva/lib/shapes/Image";
 import { Stage as StageType } from "konva/lib/Stage";
-import { ImageProperties, ShapeID, TextProperties } from "@/app/lib/ui/types";
+import {
+  ImageProperties,
+  Shape as ShapeType,
+  ShapeID,
+  TextProperties,
+  ShapeProperties,
+} from "@/app/lib/ui/types";
 
 // Styles
 import styles from "./imageEditor.module.css";
 import { KonvaEventObject } from "konva/lib/Node";
+import ToolBar from "./ToolBar";
 
 export default function ImageEditor() {
-  const [imageProperties, setImageProperties] = useState<ImageProperties>({
-    shape: "image",
-    id: "",
-    brightness: 0,
-    contrast: 0,
-    height: 0,
-    width: 0,
-    url: "",
-  });
   const [images, setImages] = useState<ImageProperties[]>([]);
   const [texts, setTexts] = useState<TextProperties[]>([]);
-  const [text, setText] = useState<TextProperties>({
-    shape: "text",
-    id: "",
-    text: "",
-    fill: "",
-    fontSize: 12,
-  });
-  const [selectedText, setSelectedText] = useState<ShapeID>("");
 
-  const { brightness, contrast, height, width, url } = imageProperties;
-  const [image] = useImage(url != null ? url : "");
-
-  const [selectedShape, setSelectedShape] = useState<ShapeID>("");
+  const [selectedShape, setSelectedShape] = useState<ShapeProperties | null>(
+    null
+  );
   const stageRef = useRef<StageType>(null);
 
-  function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files[0]) {
-      setImageProperties({
-        shape: "image",
-        id: crypto.randomUUID(),
-        brightness: 0,
-        contrast: 0,
-        url: URL.createObjectURL(e.target.files[0]),
-      });
-    }
-  }
   function checkDeselect(e: KonvaEventObject<Event>) {
     // deselect when clicked on empty area
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
-      setSelectedShape("");
+      setSelectedShape(null);
     }
   }
 
-  function handleImageControlChange(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
+  function getSelectedShapeProps(): ShapeProperties | null | undefined {
+    if (selectedShape == null) return null;
 
-    const entries: { [key: string]: number } = {};
-    for (const [k, v] of data.entries()) {
-      entries[k] = parseFloat(v as string);
-    }
-    const modifiedImageProperties = entries as Partial<ImageProperties>;
-
-    setImageProperties({
-      ...imageProperties,
-      ...modifiedImageProperties,
-    });
-  }
-
-  function handleTextControlChange(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
-
-    const entries: { [key: string]: string } = {};
-    for (const [k, v] of data.entries()) {
-      entries[k] = v as string;
-    }
-
-    if (entries.id === "") {
-      addText(entries.text);
+    if (selectedShape.shape === "image") {
+      return images.slice().find((props) => props.id === selectedShape.id);
     } else {
-      modifyText();
+      return texts.slice().find((props) => props.id === selectedShape.id);
     }
   }
 
-  function addText(text: string) {
-    const newText: TextProperties = {
-      shape: "text",
-      id: crypto.randomUUID(),
-      fill: "#000000",
-      fontSize: 18,
-      text,
-    };
-    setTexts([...texts, newText]);
+  function handleAddShape(
+    e: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>
+  ) {
+    console.log(e.currentTarget.name);
+    switch (e.currentTarget.name) {
+      case "text":
+        const newText: TextProperties = {
+          shape: "text",
+          id: crypto.randomUUID(),
+          fill: "#000000",
+          fontSize: 18,
+          text: "Click me.",
+        };
+        setTexts([...texts, newText]);
+        break;
+      case "image":
+        const files = (e.target as HTMLInputElement).files;
+        if (files && files[0]) {
+          const imgProps: ImageProperties = {
+            shape: "image",
+            id: crypto.randomUUID(),
+            brightness: 0,
+            contrast: 0,
+            url: URL.createObjectURL(files[0]),
+          };
+          setImages([...images, imgProps]);
+        }
+        break;
+      default:
+        console.error("Unkown Shape: Tried to add an unkown shape.");
+        break;
+    }
   }
 
-  function modifyText() {
-    // TODO
+  function handleControlChange(newAttrs: Partial<ShapeProperties>) {
+    if (newAttrs.shape === "image") {
+      // const img = images.findIndex((props) => props.id === selectedShape?.id);
+      const imgs = images.slice().map((prop) => {
+        if (prop.id === selectedShape?.id) {
+          return {
+            ...prop,
+            ...newAttrs,
+          };
+        } else {
+          return { ...prop };
+        }
+      });
+      setImages(imgs);
+    } else if (newAttrs.shape === "text") {
+      const txts = texts.slice().map((prop) => {
+        if (prop.id === selectedShape?.id) {
+          return {
+            ...prop,
+            ...newAttrs,
+          };
+        } else {
+          return { ...prop };
+        }
+      });
+      setTexts(txts);
+    } else {
+      console.error("Unknown Shape: Tried to update unkown shape.");
+    }
   }
 
   return (
@@ -118,69 +122,47 @@ export default function ImageEditor() {
         onTouchStart={checkDeselect}
       >
         <Layer>
-          {image && (
+          {images.map((imageProps, i) => (
             <Shape
-              // image={image}
-              shapeProps={imageProperties}
-              isSelected={selectedShape === imageProperties.id}
-              onSelect={() => setSelectedShape(imageProperties.id)}
+              key={imageProps.id}
+              shapeProps={imageProps}
+              isSelected={selectedShape?.id === imageProps.id}
+              onSelect={() => setSelectedShape({ ...imageProps })}
               onChange={(newAttrs) => {
                 console.log(newAttrs);
-                setImageProperties(newAttrs as ImageProperties);
+
+                const imgs = images.slice();
+                imgs[i] = newAttrs as ImageProperties;
+                setImages(imgs);
               }}
             />
-          )}
-          {texts.map(
-            (textProps, i) =>
-               (
-                <Shape
-                  key={textProps.id}
-                  shapeProps={textProps}
-                  isSelected={selectedShape === textProps.id}
-                  onSelect={() => setSelectedShape(textProps.id)}
-                  onChange={(newAttrs) => {
-                    console.log(newAttrs);
+          ))}
+          {texts.map((textProps, i) => (
+            <Shape
+              key={textProps.id}
+              shapeProps={textProps}
+              isSelected={selectedShape?.id === textProps.id}
+              onSelect={() => setSelectedShape({ ...textProps })}
+              onChange={(newAttrs) => {
+                console.log(newAttrs);
 
-                    // const txts = texts.slice();
-                    // txts[i] = newAttrs as TextProperties;
-                    // setTexts(txts);
-                  }}
-                />
-              )
-          )}
+                const txts = texts.slice();
+                txts[i] = newAttrs as TextProperties;
+                setTexts(txts);
+              }}
+            />
+          ))}
         </Layer>
       </Stage>
       <>
-        {image == null ? (
-          <UploadButton onUpload={handleUpload} />
-        ) : (
-          <>
-            <ImageControls onControlChange={handleImageControlChange} />
-            <TextControls
-              onControlChange={handleTextControlChange}
-              textProperties={text}
-            />
-          </>
-        )}
+        <ToolBar onAddShape={handleAddShape} />
       </>
+      {selectedShape != null && (
+        <Controls
+          selectedShape={selectedShape}
+          onControlChange={handleControlChange}
+        />
+      )}
     </>
-  );
-}
-
-function UploadButton({
-  onUpload,
-}: {
-  onUpload: React.ChangeEventHandler<HTMLInputElement>;
-}) {
-  return (
-    <button className={styles.btn}>
-      <input
-        type="file"
-        accept="image/*"
-        name="image"
-        id="image"
-        onChange={onUpload}
-      />
-    </button>
   );
 }
