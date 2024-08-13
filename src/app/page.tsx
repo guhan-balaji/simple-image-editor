@@ -7,7 +7,7 @@ const ImageEditor = dynamic(() => import("@/app/ui/ImageEditor"), {
 
 export default function Home() {
   return (
-    <main className={`${styles.main} ${styles.color}`}>
+    <main className={styles.main}>
       <ImageEditor />
     </main>
   );

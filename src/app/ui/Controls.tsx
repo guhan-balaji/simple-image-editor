@@ -4,6 +4,8 @@ import {
   TextProperties,
 } from "../lib/ui/types";
 
+import styles from "./imageEditor.module.css";
+
 export default function Controls({
   selectedShape,
   onControlChange,
@@ -12,7 +14,8 @@ export default function Controls({
   onControlChange: (newAttrs: Partial<ShapeProperties>) => void;
 }) {
   return (
-    <>
+    <div className={styles.controlPanel}>
+      <div className={styles.columnContainer}>
       {selectedShape.shape === "image" && (
         <ImageControls
           imageProperties={selectedShape as ImageProperties}
@@ -24,8 +27,8 @@ export default function Controls({
           textProperties={selectedShape as TextProperties}
           onControlChange={onControlChange}
         />
-      )}
-    </>
+      )}</div>
+    </div>
   );
 }
 
@@ -39,7 +42,7 @@ function ImageControls({
   return (
     <>
       <h2>Image Controls</h2>
-      <div>
+      {/* <div> */}
         <label htmlFor="brightness">Brightness:</label>
         <br />
         <input
@@ -71,7 +74,7 @@ function ImageControls({
             })
           }
         />
-      </div>
+      {/* </div> */}
     </>
   );
 }
@@ -86,7 +89,7 @@ function TextControls({
   return (
     <>
       <h2>Text Controls</h2>
-      <div>
+      {/* <div> */}
         <input type="hidden" name="id" value={textProperties.id} />
         <label htmlFor="text">Text:</label>
         <br />
@@ -101,6 +104,7 @@ function TextControls({
             });
           }}
         />
+        <br />
         <label htmlFor="fill">Text Color:</label>
         <br />
         <input
@@ -114,7 +118,7 @@ function TextControls({
             })
           }
         />
-      </div>
+      {/* </div> */}
     </>
   );
 }

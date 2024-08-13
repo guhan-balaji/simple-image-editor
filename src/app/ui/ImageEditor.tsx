@@ -111,7 +111,7 @@ export default function ImageEditor() {
   return (
     <>
       <Stage
-        className={`${styles.bg} ${styles.stage}`}
+        className={styles.stage}
         ref={stageRef}
         width={window.innerWidth}
         height={window.innerHeight}
