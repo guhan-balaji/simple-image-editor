@@ -42,7 +42,6 @@ function ImageControls({
   return (
     <>
       <h2>Image Controls</h2>
-      {/* <div> */}
         <label htmlFor="brightness">Brightness:</label>
         <br />
         <input
@@ -74,7 +73,6 @@ function ImageControls({
             })
           }
         />
-      {/* </div> */}
     </>
   );
 }
@@ -89,7 +87,6 @@ function TextControls({
   return (
     <>
       <h2>Text Controls</h2>
-      {/* <div> */}
         <input type="hidden" name="id" value={textProperties.id} />
         <label htmlFor="text">Text:</label>
         <br />
@@ -118,7 +115,6 @@ function TextControls({
             })
           }
         />
-      {/* </div> */}
     </>
   );
 }

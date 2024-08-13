@@ -23,8 +23,6 @@ export default function Shape({
   isSelected: boolean;
   onSelect: () => void;
   onChange: (newAttrs: ShapeProperties) => void;
-  // image?: CanvasImageSource;
-  // imageRef?: LegacyRef<Image>;
 }) {
   const shapeRef = useRef<Image | Text>(null);
   const trRef = useRef<T>(null);
@@ -40,9 +38,6 @@ export default function Shape({
 
   useEffect(() => {
     if (image != null && shapeProps.shape === "image") {
-      const imageProps = shapeProps;
-      console.log("shape effect: ", imageProps);
-
       // you many need to reapply cache on some props changes like shadow, stroke, etc.
       shapeRef.current?.cache();
     }
@@ -57,24 +52,22 @@ export default function Shape({
   }
 
   function onTransformEnd(e: KonvaEventObject<Event>) {
-    // // transformer is changing scale of the node
-    // // and NOT its width or height
-    // // but in the store we have only width and height
-    // // to match the data better we will reset scale on transform end
     const node = shapeRef.current!;
-    // const scaleX = node.scaleX();
-    // const scaleY = node.scaleY();
-
-    // // we will reset it back
-    // node.scaleX(1);
-    // node.scaleY(1);
-    onChange({
-      ...shapeProps,
-      x: node.x(),
-      y: node.y(),
-      width: node.width(),
-      height: node.height(),
-    });
+    if (shapeProps.shape === "image") {
+      onChange({
+        ...shapeProps,
+        x: node.x(),
+        y: node.y(),
+        width: node.width(),
+        height: node.height(),
+      });
+    } else {
+      onChange({
+        ...shapeProps,
+        x: node.x(),
+        y: node.y(),
+      });
+    }
   }
 
   return (

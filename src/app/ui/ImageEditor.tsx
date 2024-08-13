@@ -37,7 +37,6 @@ export default function ImageEditor() {
   function handleAddShape(
     e: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>
   ) {
-    console.log(e.currentTarget.name);
     switch (e.currentTarget.name) {
       case "text":
         const newText: TextProperties = {
@@ -90,8 +89,6 @@ export default function ImageEditor() {
       setTexts((texts) =>
         texts.map((text) => {
           if (text.id === selectedShape?.id) {
-            console.log(text);
-
             return {
               ...text,
               ...newAttrs,
@@ -126,8 +123,6 @@ export default function ImageEditor() {
               isSelected={selectedShape?.id === imageProps.id}
               onSelect={() => setSelectedShape({ ...imageProps })}
               onChange={(newAttrs) => {
-                console.log(newAttrs);
-
                 const imgs = images.slice();
                 imgs[i] = newAttrs as ImageProperties;
                 setImages(imgs);
@@ -141,8 +136,6 @@ export default function ImageEditor() {
               isSelected={selectedShape?.id === textProps.id}
               onSelect={() => setSelectedShape({ ...textProps })}
               onChange={(newAttrs) => {
-                console.log(newAttrs);
-
                 const txts = texts.slice();
                 txts[i] = newAttrs as TextProperties;
                 setTexts(txts);
