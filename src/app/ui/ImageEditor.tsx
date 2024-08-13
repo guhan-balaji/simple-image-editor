@@ -8,8 +8,6 @@ import Controls from "./Controls";
 import { Stage as StageType } from "konva/lib/Stage";
 import {
   ImageProperties,
-  Shape as ShapeType,
-  ShapeID,
   TextProperties,
   ShapeProperties,
 } from "@/app/lib/ui/types";
@@ -33,16 +31,6 @@ export default function ImageEditor() {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
       setSelectedShape(null);
-    }
-  }
-
-  function getSelectedShapeProps(): ShapeProperties | null | undefined {
-    if (selectedShape == null) return null;
-
-    if (selectedShape.shape === "image") {
-      return images.slice().find((props) => props.id === selectedShape.id);
-    } else {
-      return texts.slice().find((props) => props.id === selectedShape.id);
     }
   }
 
@@ -82,30 +70,39 @@ export default function ImageEditor() {
 
   function handleControlChange(newAttrs: Partial<ShapeProperties>) {
     if (newAttrs.shape === "image") {
-      // const img = images.findIndex((props) => props.id === selectedShape?.id);
-      const imgs = images.slice().map((prop) => {
-        if (prop.id === selectedShape?.id) {
-          return {
-            ...prop,
-            ...newAttrs,
-          };
-        } else {
-          return { ...prop };
-        }
-      });
-      setImages(imgs);
+ 
+      setImages((images) =>
+        images.map((image) => {
+          if (image.id === selectedShape?.id) {
+            return {
+              ...image,
+              ...newAttrs,
+            };
+          } else {
+            return {
+              ...image,
+            };
+          }
+        })
+      );
     } else if (newAttrs.shape === "text") {
-      const txts = texts.slice().map((prop) => {
-        if (prop.id === selectedShape?.id) {
-          return {
-            ...prop,
-            ...newAttrs,
-          };
-        } else {
-          return { ...prop };
-        }
-      });
-      setTexts(txts);
+
+      setTexts((texts) =>
+        texts.map((text) => {
+          if (text.id === selectedShape?.id) {
+            console.log(text);
+
+            return {
+              ...text,
+              ...newAttrs,
+            };
+          } else {
+            return {
+              ...text,
+            };
+          }
+        })
+      );
     } else {
       console.error("Unknown Shape: Tried to update unkown shape.");
     }

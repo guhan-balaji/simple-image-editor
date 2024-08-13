@@ -1,9 +1,5 @@
-import { useRef, useState } from "react";
-// import styles from "./imageEditor.module.css";
 import {
   ImageProperties,
-  Shape,
-  ShapeID,
   ShapeProperties,
   TextProperties,
 } from "../lib/ui/types";
@@ -12,18 +8,18 @@ export default function Controls({
   selectedShape,
   onControlChange,
 }: {
-  selectedShape: ShapeProperties | null;
-  onControlChange: (newAttrs: ShapeProperties) => void;
+  selectedShape: ShapeProperties;
+  onControlChange: (newAttrs: Partial<ShapeProperties>) => void;
 }) {
   return (
     <>
-      {selectedShape && selectedShape.shape === "image" && (
+      {selectedShape.shape === "image" && (
         <ImageControls
           imageProperties={selectedShape as ImageProperties}
           onControlChange={onControlChange}
         />
       )}
-      {selectedShape && selectedShape.shape === "text" && (
+      {selectedShape.shape === "text" && (
         <TextControls
           textProperties={selectedShape as TextProperties}
           onControlChange={onControlChange}
@@ -38,10 +34,8 @@ function ImageControls({
   onControlChange,
 }: {
   imageProperties: ImageProperties;
-  onControlChange: (newAttrs: ShapeProperties) => void;
+  onControlChange: (newAttrs: Partial<ShapeProperties>) => void;
 }) {
-  const btnRef = useRef<HTMLButtonElement>(null);
-
   return (
     <>
       <h2>Image Controls</h2>
@@ -51,7 +45,7 @@ function ImageControls({
         <input
           onChange={(e) =>
             onControlChange({
-              ...imageProperties,
+              shape: imageProperties.shape,
               brightness: parseFloat(e.target.value),
             })
           }
@@ -72,7 +66,7 @@ function ImageControls({
           step="1"
           onChange={(e) =>
             onControlChange({
-              ...imageProperties,
+              shape: imageProperties.shape,
               contrast: parseFloat(e.target.value),
             })
           }
@@ -87,9 +81,8 @@ function TextControls({
   onControlChange,
 }: {
   textProperties: TextProperties;
-  onControlChange: (newAttrs: ShapeProperties) => void;
+  onControlChange: (newAttrs: Partial<ShapeProperties>) => void;
 }) {
-  // const [text, setText] = useState<string>(textProperties.text);
   return (
     <>
       <h2>Text Controls</h2>
@@ -102,9 +95,8 @@ function TextControls({
           type="text"
           defaultValue={textProperties.text}
           onChange={(e) => {
-            // setText(e.target.value);
             onControlChange({
-              ...textProperties,
+              shape: textProperties.shape,
               text: e.target.value,
             });
           }}
@@ -114,10 +106,10 @@ function TextControls({
         <input
           name="fill"
           type="color"
-          defaultValue={textProperties.text}
+          defaultValue={textProperties.fill}
           onChange={(e) =>
             onControlChange({
-              ...textProperties,
+              shape: textProperties.shape,
               fill: e.target.value,
             })
           }
