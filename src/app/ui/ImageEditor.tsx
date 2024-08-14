@@ -45,6 +45,8 @@ export default function ImageEditor() {
           fill: "#000000",
           fontSize: 18,
           text: "Click me.",
+          x: 300,
+          y: 300,
         };
         setTexts([...texts, newText]);
         break;
@@ -65,11 +67,24 @@ export default function ImageEditor() {
         console.error("Unkown Shape: Tried to add an unkown shape.");
         break;
     }
+    setSelectedShape(null);
+  }
+
+  function handleDeleteShape() {
+    if (selectedShape?.shape === "image") {
+      setImages((images) =>
+        images.filter((image) => image.id !== selectedShape.id)
+      );
+    } else if (selectedShape?.shape === "text") {
+      setTexts((texts) => texts.filter((text) => text.id !== selectedShape.id));
+    } else {
+      console.log("Should be unreachable.");
+    }
+    setSelectedShape(null);
   }
 
   function handleControlChange(newAttrs: Partial<ShapeProperties>) {
     if (newAttrs.shape === "image") {
- 
       setImages((images) =>
         images.map((image) => {
           if (image.id === selectedShape?.id) {
@@ -85,7 +100,6 @@ export default function ImageEditor() {
         })
       );
     } else if (newAttrs.shape === "text") {
-
       setTexts((texts) =>
         texts.map((text) => {
           if (text.id === selectedShape?.id) {
@@ -107,6 +121,13 @@ export default function ImageEditor() {
 
   return (
     <>
+      <>
+        <ToolBar
+          isShapeSelected={selectedShape != null}
+          onAddShape={handleAddShape}
+          onDeleteShape={handleDeleteShape}
+        />
+      </>
       <Stage
         className={styles.stage}
         ref={stageRef}
@@ -144,9 +165,6 @@ export default function ImageEditor() {
           ))}
         </Layer>
       </Stage>
-      <>
-        <ToolBar onAddShape={handleAddShape} />
-      </>
       {selectedShape != null && (
         <Controls
           selectedShape={selectedShape}

@@ -5,7 +5,7 @@ import {
   Transformer,
 } from "react-konva";
 
-import { ImageProperties, ShapeProperties } from "../lib/ui/types";
+import { ShapeProperties } from "../lib/ui/types";
 import { Transformer as T } from "konva/lib/shapes/Transformer";
 import { Text } from "konva/lib/shapes/Text";
 import { Image } from "konva/lib/shapes/Image";

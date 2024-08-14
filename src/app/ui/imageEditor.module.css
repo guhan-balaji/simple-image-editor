@@ -1,7 +1,6 @@
 .stage {
   min-width: 100%;
-  min-height: 100%;
-  /* margin-bottom: 1rem; */
+  min-height: 95vh;
 }
 
 .columnContainer {
@@ -11,20 +10,48 @@
 }
 
 .toolbar {
-  position: absolute;
-  top: 0;
-  left: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 5vh;
 }
 
 .controlPanel {
   position: absolute;
-  top: 20px;
-  right: 10px;
-  min-width: 100px;
-  min-height: 100px;
+  top: 2rem;
+  right: 2rem;
+  min-width: 15rem;
+  min-height: 15rem;
   border: 1px solid #161a30;
   border-radius: 10%;
   background-color: whitesmoke;
-  opacity: 70%;
+  opacity: 80%;
   padding: 2rem;
+}
+
+.btn {
+  background-color: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: .375em;
+  color: #363636;
+  cursor: pointer;
+  padding: calc(.5em - 1px) 1em;
+}
+
+.btn:disabled {
+  background-color: #cccccc;
+  color: #666666;
+
+}
+.btn:active {
+  border-color: #4a4a4a;
+}
+
+.btn:focus {
+  border-color: #485fc7;
+}
+
+.btn:hover:enabled {
+  border-color: #b5b5b5;
 }
