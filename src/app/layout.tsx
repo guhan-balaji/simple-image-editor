@@ -5,9 +5,8 @@ import "@/app/ui/globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Simple Image Editor",
-  description:
-    "A simple image editor that can resize, change brightness & contrast, and add text to an image.",
+  title: "Texts & Images",
+  description: "A simple text and image manipulations.",
 };
 
 export default function RootLayout({
