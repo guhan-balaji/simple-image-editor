@@ -13,8 +13,10 @@ export type TextProperties = BaseShapeProperties & {
   shape: "text";
   id: ShapeID;
   text: string;
-  fontSize: number;
-  fill: string;
+  fill?: string;
+  fontFamily?: string;
+  fontStyle?: string;
+  fontSize?: number;
 };
 
 export type ImageProperties = BaseShapeProperties & {
